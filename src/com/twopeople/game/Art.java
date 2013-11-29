@@ -12,7 +12,9 @@ import java.io.IOException;
  */
 
 public class Art {
+    public static BufferedImage background = loadImage("res/images/background.png");
     public static BufferedImage[][] ball = loadSprite("res/images/ball.png", 16, 16);
+    public static BufferedImage[][] bricks = loadSprite("res/images/bricks.png", 32, 16);
 
     public static BufferedImage loadImage(String path) {
         BufferedImage image = null;
