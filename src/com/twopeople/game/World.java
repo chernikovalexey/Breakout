@@ -15,12 +15,12 @@ import java.util.Iterator;
 public class World {
     private Game game;
 
-    private ArrayList<Brick> bricks = new ArrayList<Brick>();
+    private ArrayList<Entity> entities = new ArrayList<Entity>();
     private ArrayList<UIElement> uiElements = new ArrayList<UIElement>();
     private Racket racket;
     private Ball ball;
 
-    private int level = 2;
+    private int level = 1;
 
     public World(Game game) {
         this.game = game;
@@ -31,11 +31,11 @@ public class World {
     }
 
     public void update(int delta) {
-        Iterator<Brick> i = bricks.iterator();
+        Iterator<Entity> i = entities.iterator();
         while (i.hasNext()) {
-            Brick brick = i.next();
-            brick.update(delta);
-            if (brick.shouldRemove()) {
+            Entity entity = i.next();
+            entity.update(delta);
+            if (entity.shouldRemove()) {
                 i.remove();
             }
         }
@@ -58,7 +58,9 @@ public class World {
     }
 
     public void render(Graphics g) {
-        Iterator<Brick> i = bricks.iterator();
+        g.drawImage(Art.background, 0, 0, Game.WIDTH, Game.HEIGHT + Game.BAR_HEIGHT, null);
+
+        Iterator<Entity> i = entities.iterator();
         while (i.hasNext()) {
             i.next().render(g);
         }
@@ -72,7 +74,15 @@ public class World {
     }
 
     public void addBrick(int x, int y) {
-        bricks.add(new Brick(this, x, y));
+        entities.add(new Brick(this, x, y));
+    }
+
+    public void addBonus(int x, int y, int w, int h, BonusType type) {
+        entities.add(new Bonus(this, x, y, w, h, type));
+    }
+
+    public void addBonus(Entity entity, BonusType type) {
+        addBonus(entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), type);
     }
 
     public void addUiElement(UIElement element) {
@@ -84,7 +94,7 @@ public class World {
     }
 
     public boolean bricksPresent() {
-        return bricks.size() > 0;
+        return entities.size() > 0;
     }
 
     public Racket getRacket() {
@@ -95,11 +105,11 @@ public class World {
         return this.ball;
     }
 
-    public ArrayList<Brick> getCollidingBricks(Entity entity) {
-        ArrayList<Brick> colliders = new ArrayList<Brick>();
-        for (Brick brick : bricks) {
-            if (brick.getCollisionSide(entity) != Entity.CollisionSide.None) {
-                colliders.add(brick);
+    public ArrayList<Entity> getCollidingBricks(Entity entity) {
+        ArrayList<Entity> colliders = new ArrayList<Entity>();
+        for (Entity e : entities) {
+            if (e.getCollisionSide(entity) != Entity.CollisionSide.None) {
+                colliders.add(e);
             }
         }
         return colliders;
@@ -116,7 +126,7 @@ public class World {
                 String[] chars = currentLine.split("");
                 for (int i = 0, len = chars.length; i < len; ++i) {
                     if (chars[i].equals("1")) {
-                        addBrick((i - 1) * Brick.WIDTH, line * Brick.HEIGHT);
+                        addBrick((i - 1) * Brick.WIDTH + i * 5, 11 + Game.BAR_HEIGHT + line * Brick.HEIGHT + line * 5);
                     }
                 }
 

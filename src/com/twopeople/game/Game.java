@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 
 public class Game extends Canvas implements Runnable {
-    public static int WIDTH = 640;
+    public static int WIDTH = 634;
     public static int HEIGHT = 560;
     public static int BAR_HEIGHT = 32;
 
@@ -125,7 +125,7 @@ public class Game extends Canvas implements Runnable {
         //        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 
         dg.setFont(getFont(0));
-        dg.setColor(Color.black);
+        dg.setColor(new Color(43, 43, 43));
         dg.drawString("Lifes: " + lifes, 10, BAR_HEIGHT / 2 + 6);
 
         String scoreSign = "Score: " + score;

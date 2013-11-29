@@ -1,6 +1,7 @@
 package com.twopeople.game;
 
 import java.awt.*;
+import java.util.Random;
 
 /**
  * Created by Alexey
@@ -11,6 +12,8 @@ public class Brick extends Entity {
     public static int WIDTH = 32;
     public static int HEIGHT = 16;
 
+    private int image = 0;
+
     private boolean fadingOut = false;
     private int padding = 0;
     private int maxPadding = 15;
@@ -18,6 +21,8 @@ public class Brick extends Entity {
 
     public Brick(World world, int x, int y) {
         super(world, x, y, WIDTH, HEIGHT);
+        Random random = new Random();
+        image = random.nextInt(7);
     }
 
     public void update(int delta) {
@@ -37,13 +42,15 @@ public class Brick extends Entity {
     public void render(Graphics g) {
         g.setColor(Color.gray);
         ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-        g.fillRect(getX() + padding / 2, getY() + padding / 2, getWidth() - padding / 2, getHeight() - padding / 2);
+        g.drawImage(Art.bricks[0][image], getX() + padding / 2, getY() + padding / 2, getWidth() - padding / 2, getHeight() - padding / 2, null);
     }
 
     @Override
     public void remove() {
-        fadingOut = true;
-        world.addUiElement(new FloatingSign("+20", getX(), getY(), Game.WIDTH - 40, 40));
-        world.getGame().addScore(20);
+        if (!fadingOut) {
+            fadingOut = true;
+            world.addUiElement(new FloatingSign("+20", getX(), getY(), Game.WIDTH - 40, 40));
+            world.getGame().addScore(20);
+        }
     }
 }

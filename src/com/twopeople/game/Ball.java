@@ -57,10 +57,10 @@ public class Ball extends Entity {
                 setWidth(WIDTH - 4);
             }
 
-            ArrayList<Brick> collidingBricks = world.getCollidingBricks(this);
+            ArrayList<Entity> collidingBricks = world.getCollidingBricks(this);
             if (collidingBricks.size() > 0) {
-                for (Brick brick : collidingBricks) {
-                    CollisionSide cs2 = brick.getCollisionSide(this);
+                for (Entity entity : collidingBricks) {
+                    CollisionSide cs2 = entity.getCollisionSide(this);
 
                     if (cs2 == CollisionSide.Left || cs2 == CollisionSide.Right) {
                         move(-dx, 0);
@@ -72,7 +72,7 @@ public class Ball extends Entity {
                         rotation = -rotation;
                     }
 
-                    brick.remove();
+                    entity.remove();
                     break;
                 }
             }

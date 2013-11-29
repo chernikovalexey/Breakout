@@ -31,7 +31,7 @@ public class FloatingSign extends UIElement {
         x += speed * Math.cos(angle);
         y += speed * Math.sin(angle);
 
-        if (x == dx || y == dy) {
+        if (Geom.getDistBetweenPoints(x, y, dx, dy) < 5) {
             remove = true;
         }
 
