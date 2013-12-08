@@ -11,16 +11,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-/**
- * Created by Alexey
- * At 1:39 PM on 11/20/13
- */
-
 public class Game extends Canvas implements Runnable {
     public static int WIDTH = 634;
     public static int HEIGHT = 560;
     public static int BAR_HEIGHT = 32;
 
+    private long lastFpsTime = 0;
+    private static int frameCount = 0;
     private static int fps = 0;
 
     private boolean isRunning = false;
@@ -30,14 +27,18 @@ public class Game extends Canvas implements Runnable {
     private BufferedImage buffer = new BufferedImage(WIDTH, HEIGHT + BAR_HEIGHT, BufferedImage.TYPE_INT_ARGB);
     private InputHandler input = new InputHandler(this);
     private World world = new World(this);
+    private BonusManager bonusManager = new BonusManager();
 
     private int lifes = 3;
     private int score = 0;
 
+    private int animDir = -1;
+    private float tryAgainOpacity = 1f;
+
     static {
         fonts.add(loadFont("HelveticaLight", 15));
         fonts.add(loadFont("HelveticaLight", 16));
-        fonts.add(loadFont("HelveticaLight", 18));
+        fonts.add(loadFont("HelveticaLight", 48));
 
         for (int i = 1; i <= 16; ++i) {
             fonts.add(loadFont("HelveticaMedium", i));
@@ -52,7 +53,7 @@ public class Game extends Canvas implements Runnable {
     }
 
     public void init() {
-        createBufferStrategy(2);
+        createBufferStrategy(3);
         requestFocus();
     }
 
@@ -65,82 +66,153 @@ public class Game extends Canvas implements Runnable {
         isRunning = false;
     }
 
+    float localTime = 0f;
+
     @Override
     public void run() {
         init();
 
-        int frames = 0;
+        final double GAME_HERTZ = 30.0;
+        final double TIME_BETWEEN_UPDATES = 1000000000 / GAME_HERTZ;
+        final int MAX_UPDATES_BEFORE_RENDER = 5;
+        double lastUpdateTime = System.nanoTime();
+        double lastRenderTime = System.nanoTime();
+        final double TARGET_FPS = 60;
+        final double TARGET_TIME_BETWEEN_RENDERS = 1000000000 / TARGET_FPS;
 
-        long time = System.currentTimeMillis();
-        long framesTime = System.currentTimeMillis();
+        int lastSecondTime = (int) (lastUpdateTime / 1000000000);
 
         while (isRunning) {
-            update((int) (System.currentTimeMillis() - time - 8));
-            render();
+            double now = System.nanoTime();
+            int updateCount = 0;
 
-            ++frames;
-            time = System.currentTimeMillis();
-
-            if (System.currentTimeMillis() - framesTime >= 1000) {
-                framesTime = System.currentTimeMillis();
-                fps = frames;
-                frames = 0;
-                //System.out.println(getFps() + " fps");
+            while (now - lastUpdateTime > TIME_BETWEEN_UPDATES && updateCount < MAX_UPDATES_BEFORE_RENDER) {
+                update();
+                lastUpdateTime += TIME_BETWEEN_UPDATES;
+                updateCount++;
             }
 
-            try {
-                Thread.sleep(8);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (now - lastUpdateTime > TIME_BETWEEN_UPDATES) {
+                lastUpdateTime = now - TIME_BETWEEN_UPDATES;
+            }
+
+            render();
+            lastRenderTime = now;
+
+            int thisSecond = (int) (lastUpdateTime / 1000000000);
+            if (thisSecond > lastSecondTime) {
+                //System.out.println("NEW SECOND " + thisSecond + " " + fps);
+                fps = frameCount;
+                frameCount = 0;
+                lastSecondTime = thisSecond;
+            }
+
+            while (now - lastRenderTime < TARGET_TIME_BETWEEN_RENDERS && now - lastUpdateTime < TIME_BETWEEN_UPDATES) {
+                Thread.yield();
+
+                try {
+                    Thread.sleep(1);
+                } catch (Exception e) {}
+
+                now = System.nanoTime();
             }
         }
     }
 
-    private void update(int delta) {
+    private void update() {
         input.update();
-        world.update(delta);
+        if (!isGameOver()) {
+            world.update();
+            bonusManager.update();
+        } else {
+            float delta = 0.0375f;
+            tryAgainOpacity += delta * animDir;
+            if (tryAgainOpacity > 1f || tryAgainOpacity < 0.2f) {
+                animDir *= -1;
+                tryAgainOpacity += delta * animDir;
+            }
+
+            if (input.r.isDown()) {
+                lifes = 3;
+                score = 0;
+                world.reset();
+            }
+        }
     }
 
     private void render() {
         BufferStrategy bs = getBufferStrategy();
         Graphics g = bs.getDrawGraphics();
+        g.fillRect(0, 0, getWidth(), getHeight());
 
         Graphics dg = buffer.getGraphics();
-        dg.setColor(Color.black);
-        dg.fillRect(0, 0, getWidth(), getHeight());
 
         Graphics2D g2d = (Graphics2D) dg;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
+        dg.drawImage(Art.bg2, 0, 0, Art.bg2.getWidth(), HEIGHT + BAR_HEIGHT, null);
+
+        Game.setOpacity(dg, 0.156789f);
+
+        dg.setColor(new Color(115, 164, 46));
+        dg.fillRect(0, 0, WIDTH, HEIGHT + BAR_HEIGHT);
+
+        setOpacity(dg, 1f);
+
         world.render(dg);
 
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        if (!isGameOver()) {
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.19f));
 
-        dg.setColor(new Color(255, 255, 255));
-        dg.fillRect(0, 0, WIDTH, BAR_HEIGHT);
-        dg.setColor(new Color(204, 204, 204));
-        dg.fillRect(0, BAR_HEIGHT, WIDTH, 1);
+            dg.setColor(new Color(0, 0, 0));
+            dg.fillRect(0, 0, WIDTH, BAR_HEIGHT);
+            dg.setColor(new Color(204, 204, 204));
+            dg.fillRect(0, BAR_HEIGHT, WIDTH, 1);
 
-        //        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 
-        dg.setFont(getFont(0));
-        dg.setColor(new Color(43, 43, 43));
-        dg.drawString("Lifes: " + lifes, 10, BAR_HEIGHT / 2 + 6);
+            dg.setFont(getFont(0));
+            dg.setColor(new Color(204, 204, 204));
+            dg.drawString("Lifes: " + lifes, 10, BAR_HEIGHT / 2 + 6);
 
-        String scoreSign = "Score: " + score;
-        int signWidth = (int) getFont(0).getStringBounds(scoreSign, new FontRenderContext(g2d.getTransform(), true, true)).getWidth();
+            String scoreSign = "Score: " + score;
+            int signWidth = (int) getFont(0).getStringBounds(scoreSign, new FontRenderContext(g2d.getTransform(), true, true)).getWidth();
 
-        dg.drawString(scoreSign, WIDTH - 10 - signWidth, BAR_HEIGHT / 2 + 6);
+            dg.drawString(scoreSign, WIDTH - 10 - signWidth, BAR_HEIGHT / 2 + 6);
+        } else {
+            setOpacity(dg, 0.254f);
+
+            dg.setColor(new Color(0, 0, 0));
+            dg.fillRect(0, 0, WIDTH, HEIGHT + BAR_HEIGHT);
+
+            String finSign = "Gave Over!";
+            String tryAgainSign = "Try again by pressing R";
+
+            int finWidth = getStringWidth(finSign, dg, getFont(2));
+            int tryAgainWidth = getStringWidth(tryAgainSign, dg, getFont(1));
+
+            setOpacity(dg, 1f);
+            dg.setColor(Color.white);
+            dg.setFont(getFont(2));
+            dg.drawString(finSign, WIDTH / 2 - finWidth / 2, HEIGHT / 2 - 48);
+            dg.setFont(getFont(1));
+            setOpacity(dg, tryAgainOpacity);
+            dg.drawString(tryAgainSign, WIDTH / 2 - tryAgainWidth / 2, HEIGHT / 2 - 16);
+        }
 
         g.drawImage(buffer, 0, 0, buffer.getWidth(), buffer.getHeight(), null);
 
-        bs.show();
         g.dispose();
+        bs.show();
     }
 
     public InputHandler getInput() {
         return this.input;
+    }
+
+    public BonusManager getBonusManager() {
+        return this.bonusManager;
     }
 
     public static int getFps() {
@@ -153,6 +225,10 @@ public class Game extends Canvas implements Runnable {
 
     // Game logic
 
+    public void addLifes(int lifes) {
+        this.lifes += lifes;
+    }
+
     public void decrementLifes() {
         --lifes;
         if (lifes < 0) {
@@ -162,6 +238,10 @@ public class Game extends Canvas implements Runnable {
 
     public void addScore(int score) {
         this.score += score;
+    }
+
+    public boolean isGameOver() {
+        return lifes == 0;
     }
 
     //
@@ -194,5 +274,13 @@ public class Game extends Canvas implements Runnable {
         }
 
         return null;
+    }
+
+    public static void setOpacity(Graphics g, float opacity) {
+        ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+    }
+
+    public static int getStringWidth(String str, Graphics g, Font font) {
+        return (int) font.getStringBounds(str, new FontRenderContext(((Graphics2D) g).getTransform(), true, true)).getWidth();
     }
 }

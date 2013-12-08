@@ -29,7 +29,7 @@ public class Ball extends Entity {
     }
 
     @Override
-    public void update(int delta) {
+    public void update() {
         InputHandler input = world.getGame().getInput();
         Racket racket = world.getRacket();
 
@@ -41,7 +41,7 @@ public class Ball extends Entity {
                 attached = false;
             }
         } else {
-            int speed = 4;
+            int speed = 10;
             double angle = getAngle();
             int dx = (int) (speed * Math.cos(angle));
             int dy = (int) (speed * Math.sin(angle));
@@ -54,26 +54,27 @@ public class Ball extends Entity {
             if (getX() <= 0 || getX() >= Game.WIDTH - WIDTH) {
                 move(-dx, 0);
                 rotation = 180 - rotation;
-                setWidth(WIDTH - 4);
             }
 
-            ArrayList<Entity> collidingBricks = world.getCollidingBricks(this);
+            ArrayList<Entity> collidingBricks = world.getCollidingEntities(this);
             if (collidingBricks.size() > 0) {
                 for (Entity entity : collidingBricks) {
-                    CollisionSide cs2 = entity.getCollisionSide(this);
+                    if (entity instanceof Brick) {
+                        CollisionSide cs2 = entity.getCollisionSide(this);
 
-                    if (cs2 == CollisionSide.Left || cs2 == CollisionSide.Right) {
-                        move(-dx, 0);
-                        rotation = 180 - rotation;
+                        if (cs2 == CollisionSide.Left || cs2 == CollisionSide.Right) {
+                            move(-dx, 0);
+                            rotation = 180 - rotation;
+                        }
+
+                        if (cs2 == CollisionSide.Top || cs2 == CollisionSide.Bottom) {
+                            move(0, -dy);
+                            rotation = -rotation;
+                        }
+
+                        entity.remove();
+                        break;
                     }
-
-                    if (cs2 == CollisionSide.Top || cs2 == CollisionSide.Bottom) {
-                        move(0, -dy);
-                        rotation = -rotation;
-                    }
-
-                    entity.remove();
-                    break;
                 }
             }
 
@@ -87,10 +88,12 @@ public class Ball extends Entity {
             if (cs == CollisionSide.Top && !world.bricksPresent()) {
                 attached = true;
             } else {
-                if (getY() <= 0 || cs == CollisionSide.Top) {
+                if (getY() <= Game.BAR_HEIGHT || cs == CollisionSide.Top) {
+                    if (cs == CollisionSide.Top) {
+                        racket.setGlowPosition((getX() - racket.getX()) / (Racket.WIDTH / 3));
+                    }
                     move(0, -dy);
                     rotation = -rotation;
-                    setHeight(HEIGHT - 4);
                 }
 
                 if (getY() >= Game.HEIGHT + Game.BAR_HEIGHT) {

@@ -51,6 +51,7 @@ public class Entity {
     private int x, y;
     private int width, height;
     private int normalSpeed, speed, maxSpeed;
+    public float opacity = 1f;
 
     private boolean isRound = false;
     private boolean shouldBeRemoved = false;
@@ -63,14 +64,14 @@ public class Entity {
         setHeight(height);
     }
 
-    public void update(int delta) {
+    public void update() {
     }
 
     public void render(Graphics g) {
     }
 
     private boolean hasMovingCollisions() {
-        return world.getCollidingBricks(this).size() > 0 || world.getRacket().collidesWith(this) || world.getBall().collidesWith(this);
+        return world.getCollidingEntities(this).size() > 0 || world.getRacket().collidesWith(this) || world.getBall().collidesWith(this);
     }
 
     public void move(int dx, int dy) {
@@ -196,5 +197,13 @@ public class Entity {
 
     public void remove() {
         this.shouldBeRemoved = true;
+    }
+
+    public float getOpacity() {
+        return this.opacity;
+    }
+
+    public void setOpacity(float opacity) {
+        this.opacity = opacity;
     }
 }

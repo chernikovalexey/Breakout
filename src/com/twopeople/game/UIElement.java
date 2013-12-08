@@ -15,7 +15,7 @@ public class UIElement {
     public UIElement() {
     }
 
-    public void update(int delta) {
+    public void update() {
     }
 
     public void render(Graphics g) {

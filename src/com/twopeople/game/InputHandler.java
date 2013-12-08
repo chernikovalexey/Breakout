@@ -62,6 +62,8 @@ public class InputHandler implements MouseMotionListener, KeyListener, MouseList
     public Key down = new Key();
     public Key space = new Key();
 
+    public Key r = new Key();
+
     public InputHandler(Game game) {
         game.addMouseListener(this);
         game.addMouseMotionListener(this);
@@ -85,6 +87,8 @@ public class InputHandler implements MouseMotionListener, KeyListener, MouseList
         if (e.getKeyCode() == KeyEvent.VK_UP) { up.toggle(true); }
         if (e.getKeyCode() == KeyEvent.VK_DOWN) { down.toggle(true); }
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { space.toggle(true); }
+
+        if (e.getKeyCode() == KeyEvent.VK_R) { r.toggle(true); }
     }
 
     @Override
@@ -94,6 +98,8 @@ public class InputHandler implements MouseMotionListener, KeyListener, MouseList
         if (e.getKeyCode() == KeyEvent.VK_UP) { up.toggle(false); }
         if (e.getKeyCode() == KeyEvent.VK_DOWN) { down.toggle(false); }
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { space.toggle(false); }
+
+        if (e.getKeyCode() == KeyEvent.VK_R) { r.toggle(false); }
     }
 
     @Override

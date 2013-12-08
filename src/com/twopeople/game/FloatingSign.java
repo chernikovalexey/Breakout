@@ -23,7 +23,7 @@ public class FloatingSign extends UIElement {
     }
 
     @Override
-    public void update(int delta) {
+    public void update() {
         int speed = 8;
 
         double angle = Math.atan2(dy - y, dx - x);

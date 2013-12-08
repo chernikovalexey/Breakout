@@ -8,25 +8,27 @@ import java.awt.*;
  */
 
 public class Racket extends Entity {
-    public static int WIDTH = 55;
-    public static int HEIGHT = 10;
+    public static int WIDTH = 60;
+    public static int HEIGHT = 12;
+
+    private int glowPosition = 0;
 
     public Racket(World world, int x, int y) {
         super(world, x, y, WIDTH, HEIGHT);
     }
 
     @Override
-    public void update(int delta) {
+    public void update() {
         InputHandler input = world.getGame().getInput();
 
-        int speed = 4;
+        int speed = 8;
 
         //        if (input.hasMouseMoved() && input.isMouseIn()) {
         //            setX(input.getMouseX());
         //        } else {
         if (input.left.isDown()) { move(-speed, 0); }
         if (input.right.isDown()) { move(speed, 0); }
-//        //        }
+        //        //        }
 
         if (getX() <= 0) {
             setX(0);
@@ -35,11 +37,35 @@ public class Racket extends Entity {
         if (getX() >= Game.WIDTH - WIDTH) {
             setX(Game.WIDTH - WIDTH);
         }
+
+        BonusManager bm = world.getGame().getBonusManager();
+        if (bm.isInactive(BonusType.PlatformExtension)) {
+            bm.activate(BonusType.PlatformExtension);
+            setWidth((int) (getWidth() * 1.5));
+        } else if (bm.isJustRemoved(BonusType.PlatformExtension)) {
+            setWidth(WIDTH);
+        }
+
+        if (bm.isInactive(BonusType.PlatformShrink)) {
+            bm.activate(BonusType.PlatformShrink);
+            setWidth((int) (getWidth() / 1.5));
+        } else if (bm.isJustRemoved(BonusType.PlatformShrink)) {
+            setWidth(WIDTH);
+        }
+
+        glowPosition = 0;
     }
 
     @Override
     public void render(Graphics g) {
         g.setColor(Color.cyan);
-        g.fillRect(getX(), getY(), getWidth(), getHeight());
+        Game.setOpacity(g, 1f);
+        g.drawImage(Art.racket[0][0], getX(), getY(), getWidth(), getHeight(), null);
+    }
+
+    // todo
+    public void setGlowPosition(int p) {
+        System.out.println(p);
+        glowPosition = p;
     }
 }
