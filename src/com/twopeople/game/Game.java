@@ -28,16 +28,16 @@ public class Game extends Canvas implements Runnable {
     private World world = new World(this);
     private BonusManager bonusManager = new BonusManager();
 
-    private int lifes = 0;
+    private int lifes = 3;
     private int score = 0;
-    private boolean won = true;
+    private boolean won = false;
 
     private int animDir = -1;
     private float tryAgainOpacity = 1f;
 
     static {
         fonts.add(loadFont("HelveticaLight", 15));
-        fonts.add(loadFont("HelveticaLight", 16));
+        fonts.add(loadFont("HelveticaLight", 18));
         fonts.add(loadFont("HelveticaLight", 48));
 
         for (int i = 1; i <= 16; ++i) {
@@ -182,7 +182,7 @@ public class Game extends Canvas implements Runnable {
 
             dg.drawString(scoreSign, WIDTH - 10 - signWidth, BAR_HEIGHT / 2 + 6);
         } else {
-            setOpacity(dg, 0.254f);
+            setOpacity(dg, 0.625f);
 
             dg.setColor(new Color(0, 0, 0));
             dg.fillRect(0, 0, WIDTH, HEIGHT + BAR_HEIGHT);
@@ -196,10 +196,10 @@ public class Game extends Canvas implements Runnable {
             setOpacity(dg, 1f);
             dg.setColor(Color.white);
             dg.setFont(getFont(2));
-            dg.drawString(finSign, WIDTH / 2 - finWidth / 2, HEIGHT / 2 - 48);
+            dg.drawString(finSign, WIDTH / 2 - finWidth / 2, HEIGHT / 2 - 24);
             dg.setFont(getFont(1));
             setOpacity(dg, tryAgainOpacity);
-            dg.drawString(tryAgainSign, WIDTH / 2 - tryAgainWidth / 2, HEIGHT / 2 - 16);
+            dg.drawString(tryAgainSign, WIDTH / 2 - tryAgainWidth / 2, HEIGHT / 2 + 8);
         }
 
         g.drawImage(buffer, 0, 0, buffer.getWidth(), buffer.getHeight(), null);
@@ -261,6 +261,8 @@ public class Game extends Canvas implements Runnable {
         frame.setVisible(true);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
+
+        frame.setIconImage(Art.icon);
 
         game.start();
     }

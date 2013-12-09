@@ -3,11 +3,6 @@ package com.twopeople.game;
 import java.awt.*;
 import java.util.Random;
 
-/**
- * Created by Alexey
- * At 2:06 PM on 11/20/13
- */
-
 public class Brick extends Entity {
     public static int id = -1;
     public static int WIDTH = 32;
@@ -57,12 +52,13 @@ public class Brick extends Entity {
         g.setColor(Color.gray);
         Game.setOpacity(g, opacity);
         g.drawImage(Art.bricks[0][type - 1], getX() + padding / 2, getY() + padding, getWidth() - padding, getHeight() - padding, null);
+//        g.fillRect((int) getRectBB().getX(), (int) getRectBB().getY(), (int) getRectBB().getWidth(), (int) getRectBB().getHeight());
     }
 
-    @Override
-    public Rectangle getRectBB() {
-        return new Rectangle(getX(), getY() - 1, getWidth(), getHeight() + 1);
-    }
+//    @Override
+//    public Rectangle getRectBB() {
+//        return new Rectangle(getX() - 1, getY() - 1, getWidth() + 2, getHeight() + 2);
+//    }
 
     @Override
     public void remove() {

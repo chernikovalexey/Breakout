@@ -1,12 +1,6 @@
 package com.twopeople.game;
 
 import java.awt.*;
-import java.util.ArrayList;
-
-/**
- * Created by Alexey
- * At 2:18 PM on 11/25/13
- */
 
 public class Bonus extends Entity {
     public static final int WIDTH = 16;

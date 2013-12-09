@@ -2,11 +2,6 @@ package com.twopeople.game;
 
 import java.awt.*;
 
-/**
- * Created by Alexey
- * At 2:16 PM on 11/20/13
- */
-
 public class Racket extends Entity {
     public static int WIDTH = 60;
     public static int HEIGHT = 12;
@@ -61,6 +56,11 @@ public class Racket extends Entity {
         g.setColor(Color.cyan);
         Game.setOpacity(g, 1f);
         g.drawImage(Art.racket[0][0], getX(), getY(), getWidth(), getHeight(), null);
+    }
+
+    @Override
+    public Rectangle getRectBB() {
+        return new Rectangle(getX() - 2, getY(), getWidth() + 4, getHeight());
     }
 
     // todo

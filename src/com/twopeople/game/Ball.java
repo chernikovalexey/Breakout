@@ -3,11 +3,6 @@ package com.twopeople.game;
 import java.awt.*;
 import java.util.ArrayList;
 
-/**
- * Created by Alexey
- * At 2:16 PM on 11/20/13
- */
-
 public class Ball extends Entity {
     public static int WIDTH = 16;
     public static int HEIGHT = 16;
@@ -46,7 +41,11 @@ public class Ball extends Entity {
             int dx = (int) (speed * Math.cos(angle));
             int dy = (int) (speed * Math.sin(angle));
 
-            move(dx, dy);
+//            if (input.left.isDown()) { move(-1, 0); }
+//            if (input.right.isDown()) { move(1, 0); }
+//            if (input.up.isDown()) { move(0, -1); }
+//            if (input.down.isDown()) { move(0, 1); }
+                        move(dx, dy);
 
             setWidth(WIDTH);
             setHeight(HEIGHT);
@@ -61,6 +60,8 @@ public class Ball extends Entity {
                 for (Entity entity : collidingBricks) {
                     if (entity instanceof Brick) {
                         CollisionSide cs2 = entity.getCollisionSide(this);
+
+                        System.out.println(cs2);
 
                         if (cs2 == CollisionSide.Left || cs2 == CollisionSide.Right) {
                             move(-dx, 0);
@@ -82,6 +83,7 @@ public class Ball extends Entity {
 
             if (cs == CollisionSide.Left || cs == CollisionSide.Right) {
                 move(-dx, 0);
+                System.out.println("Weird moving direction ...");
                 rotation = 180 - rotation;
             }
 
@@ -89,6 +91,7 @@ public class Ball extends Entity {
                 attached = true;
             } else {
                 if (getY() <= Game.BAR_HEIGHT || cs == CollisionSide.Top) {
+                    //                    System.out.println("Fuuuuu");
                     if (cs == CollisionSide.Top) {
                         racket.setGlowPosition((getX() - racket.getX()) / (Racket.WIDTH / 3));
                     }
@@ -105,11 +108,11 @@ public class Ball extends Entity {
 
         long currentStateChange = System.currentTimeMillis();
 
-        if (currentStateChange - lastStateChange > 85) {
+        if (currentStateChange - lastStateChange > 75) {
             lastStateChange = currentStateChange;
             spriteState += animDir;
 
-            if (spriteState < 3 || spriteState > 7) {
+            if (spriteState < 1 || spriteState > 2) {
                 animDir *= -1;
                 spriteState += animDir;
             }
@@ -119,6 +122,7 @@ public class Ball extends Entity {
     @Override
     public void render(Graphics g) {
         g.drawImage(Art.ball[spriteState][0], getX(), getY(), getWidth(), getHeight(), null);
+        //        g.fillOval(getRoundBB().x - getRoundBB().radius, getRoundBB().y - getRoundBB().radius, getRoundBB().radius * 2, getRoundBB().radius * 2);
     }
 
     public double getAngle() {

@@ -37,7 +37,6 @@ public class World {
 
     public void reset() {
         racket = new Racket(this, Game.WIDTH / 2 - Racket.WIDTH / 2, Game.HEIGHT + Game.BAR_HEIGHT);
-        ball = new Ball(this, 200, Game.HEIGHT - 200);
 
         racketFadeIn = true;
         level = 1;
@@ -46,6 +45,7 @@ public class World {
         if (!bricksPresent()) {
             loadLevel();
         }
+        ball = new Ball(this, 200, bricksHeight + 20);
     }
 
     public void update() {
@@ -213,7 +213,7 @@ public class World {
                     int type = types.indexOf(chars[i]);
                     if (type > -1) {
                         y = 11 + Game.BAR_HEIGHT + line * Brick.HEIGHT + line * 5;
-                        addBrick((i - 1) * Brick.WIDTH + i * 5, y, type + 1);
+                        addBrick((i) * Brick.WIDTH+5 + i * 5, y, type + 1);
                     }
                 }
 

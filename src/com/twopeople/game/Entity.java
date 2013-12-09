@@ -6,11 +6,6 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-/**
- * Created by Alexey
- * At 2:06 PM on 11/20/13
- */
-
 public class Entity {
     public enum CollisionSide {
         Left, Right, Top, Bottom,
@@ -37,10 +32,19 @@ public class Entity {
             boolean bottom = check(rect.getX(), rect.getY() + rect.getHeight(), rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight());
             boolean left = check(rect.getX(), rect.getY(), rect.getX(), rect.getY() + rect.getHeight());
 
-            if (top) { return CollisionSide.Top; }
-            if (right) { return CollisionSide.Right; }
-            if (bottom) { return CollisionSide.Bottom; }
-            if (left) { return CollisionSide.Left; }
+            // todo refactor
+            if (top) {
+                return CollisionSide.Top;
+            }
+            if (bottom) {
+                return CollisionSide.Bottom;
+            }
+            if (right) {
+                return CollisionSide.Right;
+            }
+            if (left) {
+                return CollisionSide.Left;
+            }
 
             return CollisionSide.None;
         }

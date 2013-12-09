@@ -50,10 +50,12 @@ public class FloatingSign extends UIElement {
 
     @Override
     public void render(Graphics g) {
-        g.setFont(Game.getFont(2 + fontSize));
-        g.setColor(Color.white);
-        ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-        g.drawString(sign, x, y);
+        if (fontSize > 0) {
+            g.setFont(Game.getFont(2 + fontSize));
+            g.setColor(Color.white);
+            ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+            g.drawString(sign, x, y);
+        }
     }
 
     public void setFontSize(int fontSize) {

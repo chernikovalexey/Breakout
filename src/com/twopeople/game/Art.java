@@ -6,15 +6,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-/**
- * Created by Alexey
- * At 10:54 PM on 11/20/13
- */
-
 public class Art {
+    public static BufferedImage icon = loadImage("res/images/icon32.png");
     public static BufferedImage bg2 = loadImage("res/images/bg2.jpg");
     public static BufferedImage[][] racket = loadSprite("res/images/racket.png", 60, 6);
-    public static BufferedImage[][] ball = loadSprite("res/images/ball.png", 16, 16);
+    public static BufferedImage[][] ball = loadSprite("res/images/ball_1.png", 16, 16);
     public static BufferedImage[][] bricks = loadSprite("res/images/bricks.png", 32, 16);
     public static BufferedImage[][] bonuses = loadSprite("res/images/bonuses.png", 16, 16);
 
