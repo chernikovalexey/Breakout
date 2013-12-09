@@ -16,7 +16,6 @@ public class Game extends Canvas implements Runnable {
     public static int HEIGHT = 560;
     public static int BAR_HEIGHT = 32;
 
-    private long lastFpsTime = 0;
     private static int frameCount = 0;
     private static int fps = 0;
 
@@ -29,8 +28,9 @@ public class Game extends Canvas implements Runnable {
     private World world = new World(this);
     private BonusManager bonusManager = new BonusManager();
 
-    private int lifes = 3;
+    private int lifes = 0;
     private int score = 0;
+    private boolean won = true;
 
     private int animDir = -1;
     private float tryAgainOpacity = 1f;
@@ -133,6 +133,7 @@ public class Game extends Canvas implements Runnable {
             }
 
             if (input.r.isDown()) {
+                won = false;
                 lifes = 3;
                 score = 0;
                 world.reset();
@@ -186,8 +187,8 @@ public class Game extends Canvas implements Runnable {
             dg.setColor(new Color(0, 0, 0));
             dg.fillRect(0, 0, WIDTH, HEIGHT + BAR_HEIGHT);
 
-            String finSign = "Gave Over!";
-            String tryAgainSign = "Try again by pressing R";
+            String finSign = won ? "Congratulations!" : "Gave Over!";
+            String tryAgainSign = (won ? "Play" : "Try") + " again by pressing R";
 
             int finWidth = getStringWidth(finSign, dg, getFont(2));
             int tryAgainWidth = getStringWidth(tryAgainSign, dg, getFont(1));
@@ -241,7 +242,11 @@ public class Game extends Canvas implements Runnable {
     }
 
     public boolean isGameOver() {
-        return lifes == 0;
+        return lifes == 0 || won;
+    }
+
+    public void win() {
+        won = true;
     }
 
     //

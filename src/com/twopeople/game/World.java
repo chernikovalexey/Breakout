@@ -9,11 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-/**
- * Created by Alexey
- * At 2:05 PM on 11/20/13
- */
-
 public class World {
     private Game game;
 
@@ -66,7 +61,33 @@ public class World {
         }
 
         if (bricksFadeIn) {
-            fadeBricksIn();
+            long currentStateChange = System.currentTimeMillis();
+            if (currentStateChange - lastBricksStateChange > 5) {
+                lastBricksStateChange = currentStateChange;
+                boolean requiresStop = false;
+
+                for (Entity entity : bricks) {
+                    Brick br = (Brick) entity;
+                    br.fading = 1;
+
+                    br.velocityQuotient += 0.0004888f * br.getLine();
+
+                    float maxQuotient = 1.865f * (bricksHeight / br.getLine());
+                    if (br.velocityQuotient >= maxQuotient) {br.velocityQuotient = maxQuotient;}
+
+                    int rq = Game.BAR_HEIGHT - 10 + br.getLine() * (Brick.HEIGHT + 5);
+                    int yo = (int) (5 * bricksHeight * br.velocityQuotient);
+                    if (br.getY() + yo >= rq) {
+                        yo = rq - br.getY();
+                    } else {
+                        requiresStop = true;
+                    }
+
+                    br.move(0, yo);
+                }
+
+                bricksFadeIn = requiresStop;
+            }
         }
 
         if (racketFadeIn) {
@@ -81,6 +102,10 @@ public class World {
                 }
             }
         }
+
+        if (level == maxLevel && !bricksPresent()) {
+            game.win();
+        }
     }
 
     private void updateList(ArrayList<Entity> entities) {
@@ -91,36 +116,6 @@ public class World {
             if (entity.shouldRemove()) {
                 i.remove();
             }
-        }
-    }
-
-    private void fadeBricksIn() {
-        long currentStateChange = System.currentTimeMillis();
-        if (currentStateChange - lastBricksStateChange > 5) {
-            lastBricksStateChange = currentStateChange;
-            boolean requiresStop = false;
-
-            for (Entity entity : bricks) {
-                Brick br = (Brick) entity;
-                br.fading = 1;
-
-                br.velocityQuotient += 0.0004888f * br.getLine();
-
-                float maxQuotient = 1.865f * (bricksHeight / br.getLine());
-                if (br.velocityQuotient >= maxQuotient) {br.velocityQuotient = maxQuotient;}
-
-                int rq = Game.BAR_HEIGHT - 10 + br.getLine() * (Brick.HEIGHT + 5);
-                int yo = (int) (5 * bricksHeight * br.velocityQuotient);
-                if (br.getY() + yo >= rq) {
-                    yo = rq - br.getY();
-                } else {
-                    requiresStop = true;
-                }
-
-                br.move(0, yo);
-            }
-
-            bricksFadeIn = requiresStop;
         }
     }
 
