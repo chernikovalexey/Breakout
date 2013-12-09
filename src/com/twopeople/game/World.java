@@ -42,7 +42,10 @@ public class World {
         racketFadeIn = true;
         level = 1;
 
-        loadLevel();
+        bonuses.clear();
+        if (!bricksPresent()) {
+            loadLevel();
+        }
     }
 
     public void update() {
